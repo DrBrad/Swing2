@@ -20,6 +20,7 @@ public class GraphPanel extends JPanel {
 
     private int gridWidth = 100, gridHeight = 50, maxSize = 100;
     private int time = 5, digits = 5;
+    private String timeValue = "Secs";
 
     private boolean hovering;
     private int mouseX = 0, mouseY = 0;
@@ -102,7 +103,7 @@ public class GraphPanel extends JPanel {
             g2.drawLine(graphWidth-(i*gridWidth), graphBounds.y, graphWidth-(i*gridWidth), graphHeight+3);
 
             g2.setColor(getForeground());
-            String xLabel = (i*time)+" Secs";
+            String xLabel = (i*time)+" "+timeValue;
             FontMetrics metrics = g2.getFontMetrics();
             int labelWidth = metrics.stringWidth(xLabel);
             g2.drawString(xLabel, graphWidth-(i*gridWidth)-labelWidth/2, graphHeight+metrics.getHeight()+3);
@@ -133,23 +134,23 @@ public class GraphPanel extends JPanel {
             g2.setStroke(new BasicStroke(2));
 
             for(int i = 0; i < points.size()-1; i++){
-                if(points.get(i).y >= points.get(i+1).y){
-                    g2.setColor(positiveColor);
+                if(i+1 < points.size()){
+                    if(points.get(i).y >= points.get(i+1).y){
+                        g2.setColor(positiveColor);
+                    }else{
+                        g2.setColor(negativeColor);
+                    }
                 }else{
-                    g2.setColor(negativeColor);
+                    g2.setColor(positiveColor);
                 }
 
-                //if(points.get(i).x > graphBounds.x){
-                    g2.drawLine(points.get(i).x, points.get(i).y, points.get(i+1).x, points.get(i+1).y);
-                    //g2.drawString(String.format("%.10f", scores.get(i)), points.get(i).x, points.get(i).y+20);
-                //}
+                g2.drawLine(points.get(i).x, points.get(i).y, points.get(i+1).x, points.get(i+1).y);
             }
-
 
             String yLabel = String.format("%."+digits+"f", scores.get(scores.size()-1));
             FontMetrics metrics = g2.getFontMetrics();
 
-            if(points.get(points.size()-2).y >= points.get(points.size()-1).y){
+            if(scores.get(scores.size()-2) >= scores.get(scores.size()-1)){
                 g2.setColor(positiveColor);
             }else{
                 g2.setColor(negativeColor);
@@ -165,10 +166,8 @@ public class GraphPanel extends JPanel {
 
             g2.drawString(yLabel, graphWidth+5,points.get(points.size()-1).y+(metrics.getHeight()/2)-2);
 
-
-
             if(hovering){
-                double additionScore = ((graphHeight/gridHeight)*waveHeight)+((double)(graphHeight-totalHeight)/gridHeight)*waveHeight;//*getMax()+*/(graphHeight-totalHeight)/waveHeight;
+                double additionScore = ((graphHeight/gridHeight)*waveHeight)+((double)(graphHeight-totalHeight)/gridHeight)*waveHeight;
                 double additionTime = ((graphWidth/gridWidth)*time)+((double)(graphWidth-((graphWidth/gridWidth)*gridWidth))/gridWidth)*time;
 
                 g2.setColor(hoverColor);
@@ -179,7 +178,7 @@ public class GraphPanel extends JPanel {
                 g2.fillRoundRect(graphWidth, mouseY-(metrics.getHeight()/2)-3, graphBounds.width-5, metrics.getHeight()+6, 5, 5);
 
 
-                String label = String.format("%.2f", additionTime-additionTime*(((double)mouseX/(double)graphWidth)))+" Secs";
+                String label = String.format("%.2f", additionTime-additionTime*(((double)mouseX/(double)graphWidth)))+" "+timeValue;
                 metrics = g2.getFontMetrics();
                 int labelWidth = metrics.stringWidth(label);
                 g2.fillRoundRect(mouseX-(labelWidth/2)-5, graphHeight, labelWidth+10, metrics.getHeight()+7, 5, 5);
@@ -205,6 +204,12 @@ public class GraphPanel extends JPanel {
         }
 
         invalidate();
+        repaint();
+    }
+
+    public void setTimeMultiplier(int time, String timeValue){
+        this.time = time;
+        this.timeValue = timeValue;
         repaint();
     }
 
